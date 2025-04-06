@@ -164,25 +164,32 @@ int processFile(const std::string& fileName)
     }
 
 
-    // Для проверки уникальности используется unordered_set,
-    // т.к. он содержит уникальные значения и сигнализирует
-    // о попытке вставить дубликат.
-    // Также unordered_set представляет собой хэш-таблицу,
+    // Для проверки уникальности используется unordered_map,
+    // т.к. он за счет особенности обращения по несуществующему
+    // ключу позволяет организовать подсчет количества вставок
+    // по этому ключу.
+    // Также unordered_map представляет собой хэш-таблицу,
     // что означает, что решение задачи имеет сложность O(n).
-    std::unordered_set<std::string> entries;
+    std::unordered_map<std::string, int> countMap;
     std::string line{""};
     while (std::getline(inFile, line))
     {
         std::string validatedEntry = validateString(line);
         if ( !validatedEntry.empty() )
         {
-            if (entries.insert(validatedEntry).second)  // вставка удалась (строка уникальна)
-            {
-                outFile << validatedEntry << std::endl;
-            }
+            countMap[validatedEntry]++;
         }
     }
 
-    return entries.size();
+    int countUniques = 0;
+    for (const auto& [key, value] : countMap)
+    {
+        if (value == 1)
+        {
+            outFile << key << std::endl;
+            ++countUniques;
+        }
+    }
 
+    return countUniques;
 }
